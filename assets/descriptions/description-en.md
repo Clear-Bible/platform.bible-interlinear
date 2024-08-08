@@ -1,3 +1,3 @@
-Extension template for Paranext. Powered by webpack.
+An interlinear for Platform.Bible / Paranext / Paratext 10 Studio.
 
-This is a webpack project template pre-configured to build a Platform.Bible extension. It contains the bare minimum of what an extension needs.
+This extension presents and interlinear view which is generated from alignment data.
