@@ -21,8 +21,8 @@ import {
 // import extensionTemplateReactStyles from './extension-template.web-view.scss?inline';
 // import extensionTemplateHtml from './extension-template-html.web-view.html?inline';
 //
-import interlinearExtension from './webviews/interlinear.web-view';
-import interlinearStyles from './webviews/interlinear.web-view.css';
+import interlinearExtension from './webviews/interlinear.web-view?inline';
+import interlinearStyles from './webviews/interlinear.web-view.css?inline';
 
 // eslint-disable-next-line
 console.log(process.env.NODE_ENV);
