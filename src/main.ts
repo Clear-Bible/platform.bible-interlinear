@@ -66,6 +66,13 @@ const reactWebViewProvider: IWebViewProvider = {
 export async function activate(context: ExecutionActivationContext) {
   logger.info('Interlinear is activating!');
 
+  const { executionToken } = context;
+  const { createProcess } = context.elevatedPrivileges;
+  if (!createProcess)
+    throw new Error('Forgot to add "createProcess" to "elevatePrivileges" in manifest.json');
+  createProcess.fork(executionToken, 'assets/foo.js');
+
+  //createProcess.spawn(executionToken, 'font-manager', [], { stdio: [null, null, null] });
   // const warning = await papi.storage.readTextFileFromInstallDirectory(
   //   context.executionToken,
   //   'assets/heresy-warning.txt',
