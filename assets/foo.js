@@ -1,60 +1,53 @@
 const Database = require('better-sqlite3');
+const path = require('path');
 
-// Function to initialize and interact with SQLite
+let db = null;
+
+// Function to initialize (open) the database and return a Promise
 function initializeDatabase() {
+  return new Promise((resolve, reject) => {
+    try {
+      // Point to the prepopulated database in the assets folder
+      const dbPath = path.join(process.cwd(), '../assets/clear-aligner.sqlite');
+      console.log(`Opening database at: ${dbPath}`);
+
+      // Open the existing SQLite database
+      db = new Database(dbPath, { readonly: true }); // Set readonly: true if only reading
+
+      process.send('Database initialized successfully');
+      resolve();
+    } catch (error) {
+      process.send(`Error initializing database: ${error.message}`);
+      reject(error);
+    }
+  });
+}
+
+// Function to run a select query on the database
+function selectAllLanguages() {
   try {
-    // Create or open a SQLite database (you can specify the database file path)
-    const db = new Database('example.db');
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
 
-    // Create a table (if it doesn't already exist)
-    db.exec(`
-      CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL
-      );
-    `);
-
-    // Insert a new user
-    const stmt = db.prepare('INSERT INTO users (name) VALUES (?)');
-    const info = stmt.run('John Doe');
-
-    // Send a success message back to the parent process
-    process.send(`User inserted with ID: ${info.lastInsertRowid}`);
-
-    // Fetch all users and send the data to the parent process
-    const rows = db.prepare('SELECT * FROM users').all();
-    process.send(`Users: ${JSON.stringify(rows)}`);
-
-    // Close the database connection
-    db.close();
+    // Query to fetch all languages from the database
+    const rows = db.prepare('SELECT * FROM language').all();
+    process.send(`Languages from database: ${JSON.stringify(rows)}`);
   } catch (error) {
-    // Send error information to the parent process
-    process.send(`Error: ${error.message}`);
+    process.send(`Error executing query: ${error.message}`);
   }
 }
 
-// Simulate some asynchronous initialization
-setTimeout(() => {
-  // Initialize the database when the process starts
-  initializeDatabase();
+// Main function to initialize the DB and then run queries
+async function main() {
+  try {
+    await initializeDatabase();
+    selectAllLanguages();
+  } catch (error) {
+    process.send(`Error in main process: ${error.message}`);
+  } finally {
+    process.exit(0);
+  }
+}
 
-  // Optionally, exit the child process after initialization
-  process.exit(0);
-}, 1000); // Simulate a short delay
-
-/*
-process.on('message', (message) => {
-  console.log('Message from parent:', message);
-  process.send('CHILD TO PARENT MESSAGE');
-});
-
-// Handle cleanup if the child process is terminated
-process.on('exit', () => {
-  console.log('Child process is exiting...');
-});
-
-// Optional error handling
-process.on('error', (err) => {
-  console.error('An error occurred in the child process:', err);
-});
-*/
+main();
