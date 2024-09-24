@@ -38,16 +38,52 @@ function selectAllLanguages() {
   }
 }
 
+function handleQuery(message) {
+  try {
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+
+    switch (message) {
+      case 'selectAllLanguages':
+        selectAllLanguages();
+
+      default:
+        process.send({ event: 'error', message: `Unknown query: ${message.query}` });
+    }
+  } catch (error) {
+    process.send({ event: 'error', message: error.message });
+  }
+}
+
 // Main function to initialize the DB and then run queries
 async function main() {
   try {
     await initializeDatabase();
-    selectAllLanguages();
+    process.on('message', (message) => {
+      console.log(`child received message: ${message}`);
+      handleQuery(message);
+    });
   } catch (error) {
-    process.send(`Error in main process: ${error.message}`);
-  } finally {
-    process.exit(0);
+    process.send({ event: 'error', message: `Error in main process: ${error.message}` });
   }
 }
 
 main();
+
+/*
+process.on('message', (message) => {
+  console.log('Message from parent:', message);
+  process.send('CHILD TO PARENT MESSAGE');
+});
+
+// Handle cleanup if the child process is terminated
+process.on('exit', () => {
+  console.log('Child process is exiting...');
+});
+
+// Optional error handling
+process.on('error', (err) => {
+  console.error('An error occurred in the child process:', err);
+});
+*/

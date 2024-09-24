@@ -72,18 +72,11 @@ export async function activate(context: ExecutionActivationContext) {
     throw new Error('Forgot to add "createProcess" to "elevatePrivileges" in manifest.json');
   const childProcess = createProcess.fork(executionToken, 'assets/foo.js');
 
-  childProcess.send('PARENT TO CHILD MESSAGE');
+  childProcess.send('selectAllLanguages');
 
-  // Listen for messages from the child process
+  // Handle messages from the child process
   childProcess.on('message', (message: any) => {
-    logger.info(`Received message from child process: ${message}`);
-
-    // Handle the received message
-    //if (message === 'Task completed') {
-    //  logger.info('The child process has completed its task.');
-    //} else {
-    //  logger.info(`Child process sent: ${message}`);
-    //}
+    console.log('received message from child: ', message);
   });
 
   // Handle child process exit events
