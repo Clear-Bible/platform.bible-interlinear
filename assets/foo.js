@@ -7,13 +7,10 @@ let db = null;
 function initializeDatabase() {
   return new Promise((resolve, reject) => {
     try {
-      // Point to the prepopulated database in the assets folder
       const dbPath = path.join(process.cwd(), '../assets/clear-aligner.sqlite');
       console.log(`Opening database at: ${dbPath}`);
 
-      // Open the existing SQLite database
-      db = new Database(dbPath, { readonly: true }); // Set readonly: true if only reading
-
+      db = new Database(dbPath, { readonly: true });
       process.send('Database initialized successfully');
       resolve();
     } catch (error) {
@@ -30,7 +27,6 @@ function selectAllLanguages() {
       throw new Error('Database not initialized');
     }
 
-    // Query to fetch all languages from the database
     const rows = db.prepare('SELECT * FROM language').all();
     process.send(`Languages from database: ${JSON.stringify(rows)}`);
   } catch (error) {
@@ -46,16 +42,15 @@ function handleQuery(message) {
     switch (message) {
       case 'selectAllLanguages':
         selectAllLanguages();
-
+        break;
       default:
-        process.send({ event: 'error', message: `Unknown query: ${message.query}` });
+        process.send({ event: 'error', message: `Unknown query: ${message}` });
     }
   } catch (error) {
     process.send({ event: 'error', message: error.message });
   }
 }
 
-// Main function to initialize the DB and then run queries
 async function main() {
   try {
     await initializeDatabase();
@@ -69,20 +64,3 @@ async function main() {
 }
 
 main();
-
-/*
-process.on('message', (message) => {
-  console.log('Message from parent:', message);
-  process.send('CHILD TO PARENT MESSAGE');
-});
-
-// Handle cleanup if the child process is terminated
-process.on('exit', () => {
-  console.log('Child process is exiting...');
-});
-
-// Optional error handling
-process.on('error', (err) => {
-  console.error('An error occurred in the child process:', err);
-});
-*/
