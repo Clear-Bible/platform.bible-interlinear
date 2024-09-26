@@ -35,9 +35,21 @@ export async function activate(context: ExecutionActivationContext) {
     'interlinear.getLanguagesFromDatabase',
     async (input) => {
       if (!input) throw new Error('Must provide a prompt!');
-      console.log('Input!');
-      var output = [input, input];
-      return output;
+
+      // Send the message to the forked process to fetch languages
+      return new Promise((resolve, reject) => {
+        childProcess.send('selectAllLanguages'); // Trigger the query in foo.js
+
+        // Listen for the message with the query results
+        childProcess.once('message', (message: any) => {
+          if (message.startsWith('Languages from database:')) {
+            const languages = JSON.parse(message.replace('Languages from database: ', ''));
+            resolve(languages);
+          } else if (message.startsWith('Error')) {
+            reject(new Error(message));
+          }
+        });
+      });
     },
   );
 
@@ -47,11 +59,13 @@ export async function activate(context: ExecutionActivationContext) {
     throw new Error('Forgot to add "createProcess" to "elevatePrivileges" in manifest.json');
   const childProcess = createProcess.fork(executionToken, 'assets/foo.js');
 
+  /*
   childProcess.send('selectAllLanguages');
 
   childProcess.on('message', (message: any) => {
     console.log('received message from child: ', message);
   });
+  */
 
   childProcess.on('exit', (code: number, signal: string) => {
     logger.info(`Child process exited with code ${code} and signal ${signal}`);

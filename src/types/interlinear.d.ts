@@ -5,6 +5,6 @@ declare module 'interlinear' {
 
 declare module 'papi-shared-types' {
   export interface CommandHandlers {
-    'interlinear.getLanguagesFromDatabase': (input: string) => Promise<string[]>;
+    'interlinear.getLanguagesFromDatabase': (input: string) => Promise<any>;
   }
 }

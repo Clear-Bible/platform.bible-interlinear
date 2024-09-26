@@ -9,13 +9,14 @@ globalThis.webViewComponent = function Interlinear({ useWebViewState }: WebViewP
 
   const requestLanguages = useCallback(async () => {
     const results = await papi.commands.sendCommand('interlinear.getLanguagesFromDatabase', input);
+    console.log('results = ', results);
     setLanguages(results);
   }, [input, setLanguages]);
 
   return (
     <>
       <div className="title">
-        Biblica says, <span className="framework">hello world!</span> {languages}
+        Biblica says, <span className="framework">hello world!</span>
       </div>
 
       <Button onClick={requestLanguages}>Request Languages</Button>

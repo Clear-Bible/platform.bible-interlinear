@@ -43,7 +43,6 @@ function handleQuery(message) {
     if (!db) {
       throw new Error('Database not initialized');
     }
-
     switch (message) {
       case 'selectAllLanguages':
         selectAllLanguages();
