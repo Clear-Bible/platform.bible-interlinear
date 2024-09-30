@@ -5,26 +5,39 @@ import papi from '@papi/frontend';
 
 globalThis.webViewComponent = function Interlinear({ useWebViewState }: WebViewProps) {
   const [input, setInput] = useWebViewState('input', 'someInput');
+
   const [languages, setLanguages] = useWebViewState<
     { code: string; text_direction: string; font_family: string }[]
   >('languages', []);
-
-  // Function to request languages from the database
   const requestLanguages = useCallback(async () => {
     const results = await papi.commands.sendCommand('interlinear.getLanguagesFromDatabase', input);
-    console.log('results = ', results);
+    console.log('languages results = ', results);
     setLanguages(results);
   }, [input, setLanguages]);
 
+  const [verseText, setVerseText] = useWebViewState<{ id: string; text: string; gloss: string }[]>(
+    'verseText',
+    [],
+  );
+  const requestVerseText = useCallback(async () => {
+    const results = await papi.commands.sendCommand('interlinear.getVerseTextFromDatabase', input);
+    console.log('verseText results = ', results);
+    setVerseText(results);
+  }, [input, setVerseText]);
+
   return (
     <>
-      <div className="title">
-        Biblica says, <span className="framework">hello world!</span>
+      <Button onClick={requestVerseText}>Request VerseText</Button>
+      <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
+        {verseText.map((item) => (
+          <div key={item.id} style={{ margin: '10px', textAlign: 'center' }}>
+            <div style={{ fontWeight: 'bold' }}>{item.text}</div>
+            <div style={{ color: 'gray' }}>{item.gloss}</div>
+          </div>
+        ))}
       </div>
 
       <Button onClick={requestLanguages}>Request Languages</Button>
-
-      {/* Display the languages in a table */}
       {languages.length > 0 && (
         <table>
           <thead>
@@ -39,13 +52,12 @@ globalThis.webViewComponent = function Interlinear({ useWebViewState }: WebViewP
               <tr key={index}>
                 <td>{language.code}</td>
                 <td>{language.text_direction}</td>
-                <td>{language.font_family || 'N/A'}</td> {/* Handle empty font_family */}
+                <td>{language.font_family || 'N/A'}</td>
               </tr>
             ))}
           </tbody>
         </table>
       )}
-
       {languages.length === 0 && <p>No languages available. Click the button to load them!</p>}
     </>
   );

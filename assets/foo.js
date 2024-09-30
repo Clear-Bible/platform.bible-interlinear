@@ -34,6 +34,23 @@ function selectAllLanguages() {
   }
 }
 
+// Function to run a select query on the database
+function selectVerseText() {
+  try {
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+    const rows = db
+      .prepare(
+        'SELECT * FROM words_or_parts WHERE position_book = 40 AND position_chapter = 1 AND position_verse = 1',
+      )
+      .all();
+    process.send(`VerseText from database: ${JSON.stringify(rows)}`);
+  } catch (error) {
+    process.send(`Error executing query: ${error.message}`);
+  }
+}
+
 function handleQuery(message) {
   try {
     if (!db) {
@@ -42,6 +59,9 @@ function handleQuery(message) {
     switch (message) {
       case 'selectAllLanguages':
         selectAllLanguages();
+        break;
+      case 'selectVerseText':
+        selectVerseText();
         break;
       default:
         process.send({ event: 'error', message: `Unknown query: ${message}` });

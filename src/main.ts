@@ -53,6 +53,26 @@ export async function activate(context: ExecutionActivationContext) {
     },
   );
 
+  const getVerseTextFromDatabasePromise = papi.commands.registerCommand(
+    'interlinear.getVerseTextFromDatabase',
+    async (verseRef) => {
+      if (!verseRef) throw new Error('Must provide a verseRef!');
+
+      return new Promise((resolve, reject) => {
+        childProcess.send('selectVerseText');
+
+        childProcess.once('message', (message: any) => {
+          if (message.startsWith('VerseText from database:')) {
+            const verseText = JSON.parse(message.replace('VerseText from database: ', ''));
+            resolve(verseText);
+          } else if (message.startsWith('Error')) {
+            reject(new Error(message));
+          }
+        });
+      });
+    },
+  );
+
   const { executionToken } = context;
   const { createProcess } = context.elevatedPrivileges;
   if (!createProcess)
@@ -77,12 +97,8 @@ export async function activate(context: ExecutionActivationContext) {
   context.registrations.add(
     await reactWebViewProviderPromise,
     await getLanguagesFromDatabasePromise,
+    await getVerseTextFromDatabasePromise,
   );
-  // await quickVerseDataProviderPromise,
-  // await htmlWebViewProviderPromise,
-  // await reactWebViewProvider2Promise,
-  // onDoStuffEmitter,
-  // await doStuffCommandPromise,
 
   logger.info('Interlinear is finished activating!');
 }
