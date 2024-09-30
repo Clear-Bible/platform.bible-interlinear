@@ -1,5 +1,5 @@
 import { Button } from 'platform-bible-react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { WebViewProps } from '@papi/core';
 import papi from '@papi/frontend';
 
@@ -13,6 +13,7 @@ globalThis.webViewComponent = function Interlinear({
   const [languages, setLanguages] = useWebViewState<
     { code: string; text_direction: string; font_family: string }[]
   >('languages', []);
+
   const requestLanguages = useCallback(async () => {
     const results = await papi.commands.sendCommand('interlinear.getLanguagesFromDatabase', input);
     console.log('languages results = ', results);
@@ -22,12 +23,21 @@ globalThis.webViewComponent = function Interlinear({
   const [verseText, setVerseText] = useWebViewState<
     { id: string; text: string; gloss: string; linked_text: string }[]
   >('verseText', []);
+
   const requestVerseText = useCallback(async () => {
     console.log('verseRef input = ', scrRef);
     const results = await papi.commands.sendCommand('interlinear.getVerseTextFromDatabase', scrRef);
     console.log('verseText results = ', results);
     setVerseText(results);
-  }, [input, setVerseText]);
+  }, [scrRef, setVerseText]); // Depend on scrRef here
+
+  // Effect to update verseText whenever scrRef changes
+  useEffect(() => {
+    if (scrRef) {
+      // Ensure scrRef is not null/undefined
+      requestVerseText();
+    }
+  }, [scrRef, requestVerseText]); // Trigger when scrRef changes
 
   return (
     <>
