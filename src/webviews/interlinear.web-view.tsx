@@ -21,7 +21,7 @@ globalThis.webViewComponent = function Interlinear({
   }, [input, setLanguages]);
 
   const [verseText, setVerseText] = useWebViewState<
-    { id: string; text: string; gloss: string; linked_text: string }[]
+    { id: string; text: string; gloss: string; most_common_target_text: string }[]
   >('verseText', []);
 
   const requestVerseText = useCallback(async () => {
@@ -47,7 +47,7 @@ globalThis.webViewComponent = function Interlinear({
           <div key={item.id} style={{ margin: '10px', textAlign: 'center' }}>
             <div style={{ fontWeight: 'bold' }}>{item.text}</div>
             <div style={{ color: 'gray' }}>{item.gloss}</div>
-            <div style={{ color: 'red' }}>{item.linked_text}</div>
+            <div style={{ color: 'red' }}>{item.most_common_target_text}</div>
           </div>
         ))}
       </div>

@@ -43,8 +43,62 @@ function selectVerseText(verseRef) {
 
     const rows = db
       .prepare(
-        `SELECT * FROM words_or_parts WHERE position_book = ${verseRef.bookNum} AND position_chapter = ${verseRef.chapterNum} AND position_verse = ${verseRef.verseNum} AND (corpus_id = 'sbl-gnt' OR corpus_id = 'wlc-hebot')`,
+        //`SELECT * FROM words_or_parts WHERE position_book = ${verseRef.bookNum} AND position_chapter = ${verseRef.chapterNum} AND position_verse = ${verseRef.verseNum} AND (corpus_id = 'sbl-gnt' OR corpus_id = 'wlc-hebot')`,
+        `
+        WITH TargetLinks AS (
+    SELECT
+        lw.link_id,
+        w.text AS target_text
+    FROM
+        links__target_words lw
+    JOIN
+        words_or_parts w ON lw.word_id = w.id
+),
+SourceTokens AS (
+    SELECT
+        id,
+        text,
+        gloss,
+        position_book,
+        position_chapter,
+        position_verse
+    FROM
+        words_or_parts
+    WHERE
+        position_book = ${verseRef.bookNum}
+        AND position_chapter = ${verseRef.chapterNum}
+        AND position_verse = ${verseRef.verseNum}
+        AND (corpus_id = 'sbl-gnt' OR corpus_id = 'wlc-hebot')
+)
+SELECT
+    st.id,
+    st.text,
+    st.gloss,
+    -- Find the most common target token text
+    (SELECT
+        tt.target_text
+     FROM
+        TargetLinks tt
+     JOIN
+        links__source_words ls ON tt.link_id = ls.link_id
+     WHERE
+        ls.word_id IN (
+            SELECT id
+            FROM SourceTokens st2
+            WHERE st2.text = st.text
+        )
+     GROUP BY
+        tt.target_text
+     ORDER BY
+        COUNT(*) DESC
+     LIMIT 1) AS most_common_target_text
+FROM
+    SourceTokens st;
+
+
+        `,
         //"SELECT wop2.* FROM words_or_parts wop1 JOIN links__source_words lsw ON wop1.id = lsw.word_id JOIN links__target_words ltw ON lsw.link_id = ltw.link_id JOIN words_or_parts wop2 ON ltw.word_id = wop2.id WHERE wop1.position_book = 40 AND wop1.position_chapter = 1 AND wop1.position_verse = 1 AND (wop1.corpus_id = 'sbl-gnt' OR wop1.corpus_id = 'wlc-hebot')",
+
         /*`
         WITH initial_words AS (
             -- Step 1: Get the initial words
