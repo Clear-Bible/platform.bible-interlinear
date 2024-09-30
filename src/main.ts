@@ -59,12 +59,19 @@ export async function activate(context: ExecutionActivationContext) {
       if (!verseRef) throw new Error('Must provide a verseRef!');
 
       return new Promise((resolve, reject) => {
-        childProcess.send('selectVerseText');
+        childProcess.send({ command: 'selectVerseText', input: verseRef });
 
         childProcess.once('message', (message: any) => {
           if (message.startsWith('VerseText from database:')) {
             const verseText = JSON.parse(message.replace('VerseText from database: ', ''));
             resolve(verseText);
+
+            //for each source:word_id
+            //get all link_ids
+            //for each link_id
+            //get each target:word_id
+            //for each target:word_id
+            //add text count to dictionary
           } else if (message.startsWith('Error')) {
             reject(new Error(message));
           }

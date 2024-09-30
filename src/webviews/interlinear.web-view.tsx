@@ -3,7 +3,11 @@ import { useCallback, useState } from 'react';
 import { WebViewProps } from '@papi/core';
 import papi from '@papi/frontend';
 
-globalThis.webViewComponent = function Interlinear({ useWebViewState }: WebViewProps) {
+globalThis.webViewComponent = function Interlinear({
+  useWebViewState,
+  useWebViewScrollGroupScrRef,
+}: WebViewProps) {
+  const [scrRef] = useWebViewScrollGroupScrRef();
   const [input, setInput] = useWebViewState('input', 'someInput');
 
   const [languages, setLanguages] = useWebViewState<
@@ -15,12 +19,12 @@ globalThis.webViewComponent = function Interlinear({ useWebViewState }: WebViewP
     setLanguages(results);
   }, [input, setLanguages]);
 
-  const [verseText, setVerseText] = useWebViewState<{ id: string; text: string; gloss: string }[]>(
-    'verseText',
-    [],
-  );
+  const [verseText, setVerseText] = useWebViewState<
+    { id: string; text: string; gloss: string; linked_text: string }[]
+  >('verseText', []);
   const requestVerseText = useCallback(async () => {
-    const results = await papi.commands.sendCommand('interlinear.getVerseTextFromDatabase', input);
+    console.log('verseRef input = ', scrRef);
+    const results = await papi.commands.sendCommand('interlinear.getVerseTextFromDatabase', scrRef);
     console.log('verseText results = ', results);
     setVerseText(results);
   }, [input, setVerseText]);
@@ -33,6 +37,7 @@ globalThis.webViewComponent = function Interlinear({ useWebViewState }: WebViewP
           <div key={item.id} style={{ margin: '10px', textAlign: 'center' }}>
             <div style={{ fontWeight: 'bold' }}>{item.text}</div>
             <div style={{ color: 'gray' }}>{item.gloss}</div>
+            <div style={{ color: 'red' }}>{item.linked_text}</div>
           </div>
         ))}
       </div>
