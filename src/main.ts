@@ -84,7 +84,7 @@ export async function activate(context: ExecutionActivationContext) {
     'interlinear.getNumber',
     async (inputNumber) => {
       console.log('inputNumber = ', inputNumber);
-      if (!inputNumber) throw new Error('Must provide a number!  You provided ' + inputNumber);
+      //if (!inputNumber) throw new Error('Must provide a number!  You provided ' + inputNumber);
       return new Promise((resolve, reject) => {
         resolve(inputNumber + 1);
         /*

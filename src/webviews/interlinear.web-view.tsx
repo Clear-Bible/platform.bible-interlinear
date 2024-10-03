@@ -35,10 +35,9 @@ globalThis.webViewComponent = function Interlinear({
   const requestNumber = useCallback(async () => {
     console.log('requesting number');
     console.log('number input = ', inputNumber);
-    const results = inputNumber + 1; //await papi.commands.sendCommand('interlinear.getNumber', inputNumber);
+    const results = await papi.commands.sendCommand('interlinear.getNumber', inputNumber);
     console.log('number results = ', results);
     setInputNumber(results);
-    console.log('number set to', inputNumber);
     console.log('requesting number finished');
   }, [scrRef, setInputNumber]); // Depend on scrRef here
 
