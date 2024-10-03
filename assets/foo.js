@@ -157,6 +157,16 @@ FROM
   }
 }
 
+// Function to run a select query on the database
+function selectNumber(inputNumber) {
+  try {
+    var outputNumber = Number(inputNumber) + 1;
+    process.send(`Number from database: ${outputNumber}`);
+  } catch (error) {
+    process.send(`Error executing query: ${error.message}`);
+  }
+}
+
 function handleQuery(message) {
   try {
     if (!db) {
@@ -169,6 +179,9 @@ function handleQuery(message) {
       case 'selectVerseText':
         selectVerseText(message.input);
         break;
+      case 'selectNumber':
+        selectNumber(message.input);
+        break;
       default:
         process.send({ event: 'error', message: `Unknown query: ${message}` });
     }
@@ -179,7 +192,7 @@ function handleQuery(message) {
 
 async function main() {
   try {
-    await initializeDatabase();
+    //await initializeDatabase();
     process.on('message', (message) => {
       console.log(`child received message: ${message}`);
       handleQuery(message);

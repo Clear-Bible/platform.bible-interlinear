@@ -9,5 +9,6 @@ declare module 'papi-shared-types' {
   export interface CommandHandlers {
     'interlinear.getLanguagesFromDatabase': (input: string) => Promise<any>;
     'interlinear.getVerseTextFromDatabase': (verseRef: ScriptureReference) => Promise<any>;
+    'interlinear.getNumber': (inputNumber: number) => Promise<any>;
   }
 }

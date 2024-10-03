@@ -80,6 +80,28 @@ export async function activate(context: ExecutionActivationContext) {
     },
   );
 
+  const getNumberPromise = papi.commands.registerCommand(
+    'interlinear.getNumber',
+    async (inputNumber) => {
+      console.log('inputNumber = ', inputNumber);
+      if (!inputNumber) throw new Error('Must provide a number!  You provided ' + inputNumber);
+      return new Promise((resolve, reject) => {
+        resolve(inputNumber + 1);
+        /*
+        childProcess.send({ command: 'selectNumber', input: inputNumber });
+        childProcess.once('message', (message: any) => {
+          if (message.startsWith('Number from database:')) {
+            const inputNumber = message.replace('Number from database: ', '');
+            resolve(inputNumber);
+          } else if (message.startsWith('Error')) {
+            reject(new Error(message));
+          }
+        });
+        */
+      });
+    },
+  );
+
   const { executionToken } = context;
   const { createProcess } = context.elevatedPrivileges;
   if (!createProcess)
@@ -105,6 +127,7 @@ export async function activate(context: ExecutionActivationContext) {
     await reactWebViewProviderPromise,
     await getLanguagesFromDatabasePromise,
     await getVerseTextFromDatabasePromise,
+    await getNumberPromise,
   );
 
   logger.info('Interlinear is finished activating!');

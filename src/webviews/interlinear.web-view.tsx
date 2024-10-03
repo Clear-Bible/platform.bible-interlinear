@@ -9,6 +9,7 @@ globalThis.webViewComponent = function Interlinear({
 }: WebViewProps) {
   const [scrRef] = useWebViewScrollGroupScrRef();
   const [input, setInput] = useWebViewState('input', 'someInput');
+  const [inputNumber, setInputNumber] = useWebViewState('input', 0);
 
   const [languages, setLanguages] = useWebViewState<
     { code: string; text_direction: string; font_family: string }[]
@@ -31,16 +32,31 @@ globalThis.webViewComponent = function Interlinear({
     setVerseText(results);
   }, [scrRef, setVerseText]); // Depend on scrRef here
 
+  const requestNumber = useCallback(async () => {
+    console.log('requesting number');
+    console.log('number input = ', inputNumber);
+    const results = inputNumber + 1; //await papi.commands.sendCommand('interlinear.getNumber', inputNumber);
+    console.log('number results = ', results);
+    setInputNumber(results);
+    console.log('number set to', inputNumber);
+    console.log('requesting number finished');
+  }, [scrRef, setInputNumber]); // Depend on scrRef here
+
   // Effect to update verseText whenever scrRef changes
   useEffect(() => {
     if (scrRef) {
       // Ensure scrRef is not null/undefined
-      requestVerseText();
+      //requestVerseText();
+      console.log('scrRef updated');
+      requestNumber();
+      console.log('screRef update finished');
     }
   }, [scrRef, requestVerseText]); // Trigger when scrRef changes
 
   return (
     <>
+      <p>{inputNumber}</p>
+
       <Button onClick={requestVerseText}>Request VerseText</Button>
       <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
         {verseText.map((item) => (
