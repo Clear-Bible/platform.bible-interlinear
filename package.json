@@ -7,6 +7,7 @@
   "author": "Biblica",
   "license": "MIT",
   "scripts": {
+    "rebuild": ".\\node_modules\\.bin\\electron-rebuild.cmd -f -m ./node_modules/better-sqlite3",
     "build:web-view": "webpack --config ./webpack/webpack.config.web-view.ts",
     "build:main": "webpack --config ./webpack/webpack.config.main.ts",
     "build": "webpack",
@@ -33,9 +34,11 @@
   "dependencies": {
     "@sillsdev/scripture": "^2.0.1",
     "better-sqlite3": "^11.3.0",
+    "electron": "^27.3.3",
     "platform-bible-utils": "file:../paranext-core/lib/platform-bible-utils"
   },
   "devDependencies": {
+    "@electron/rebuild": "^3.7.0",
     "@swc/core": "^1.4.11",
     "@types/node": "^20.12.2",
     "@types/react": "^18.2.73",
@@ -47,6 +50,7 @@
     "copy-webpack-plugin": "^12.0.2",
     "cross-env": "^7.0.3",
     "css-loader": "^6.10.0",
+    "electron-rebuild": "^3.2.9",
     "escape-string-regexp": "^5.0.0",
     "eslint": "^8.57.0",
     "eslint-config-airbnb-base": "^15.0.0",
