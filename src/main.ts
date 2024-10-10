@@ -38,10 +38,11 @@ export async function activate(context: ExecutionActivationContext) {
 
       // Send the message to the forked process to fetch languages
       return new Promise((resolve, reject) => {
-        childProcess.send('selectAllLanguages'); // Trigger the query in foo.js
+        childProcess.stdin.write('selectAllLanguages'); // Trigger the query in foo.js
 
         // Listen for the message with the query results
-        childProcess.once('message', (message: any) => {
+        childProcess.stdout.once('data', (data: Buffer) => {
+          const message = data.toString();
           if (message.startsWith('Languages from database:')) {
             const languages = JSON.parse(message.replace('Languages from database: ', ''));
             resolve(languages);
@@ -59,19 +60,13 @@ export async function activate(context: ExecutionActivationContext) {
       if (!verseRef) throw new Error('Must provide a verseRef!');
 
       return new Promise((resolve, reject) => {
-        childProcess.send({ command: 'selectVerseText', input: verseRef });
+        childProcess.stdin.write(JSON.stringify({ command: 'selectVerseText', input: verseRef }));
 
-        childProcess.once('message', (message: any) => {
+        childProcess.stdout.once('data', (data: Buffer) => {
+          const message = data.toString();
           if (message.startsWith('VerseText from database:')) {
             const verseText = JSON.parse(message.replace('VerseText from database: ', ''));
             resolve(verseText);
-
-            //for each source:word_id
-            //get all link_ids
-            //for each link_id
-            //get each target:word_id
-            //for each target:word_id
-            //add text count to dictionary
           } else if (message.startsWith('Error')) {
             reject(new Error(message));
           }
@@ -83,15 +78,26 @@ export async function activate(context: ExecutionActivationContext) {
   const { executionToken } = context;
   const { createProcess } = context.elevatedPrivileges;
   if (!createProcess)
-    throw new Error('Forgot to add "createProcess" to "elevatePrivileges" in manifest.json');
-  const childProcess = createProcess.fork(executionToken, 'assets/foo.js');
+    throw new Error('MAIN - Forgot to add "createProcess" to "elevatePrivileges" in manifest.json');
+  //const childProcess = createProcess.fork(executionToken, 'assets/foo.js');
 
-  childProcess.on('message', (message: any) => {
-    console.log('received message from child: ', message);
+  const exePath = __dirname + '/../assets/foo-win.exe';
+  console.log(`MAIN - Executable Path: ${exePath}`);
+  const childProcess = createProcess.spawn(executionToken, exePath, [], {
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+
+  childProcess.stdout.on('data', (data: Buffer) => {
+    const message = data.toString();
+    console.log('MAIN - received message from child: ', message);
+  });
+
+  childProcess.on('error', (error) => {
+    logger.error(`MAIN - Failed to start subprocess: ${error}`);
   });
 
   childProcess.on('exit', (code: number, signal: string) => {
-    logger.info(`Child process exited with code ${code} and signal ${signal}`);
+    logger.info(`MAIN - Child process exited with code ${code} and signal ${signal}`);
   });
 
   const reactWebViewProviderPromise = papi.webViewProviders.register(
@@ -107,10 +113,10 @@ export async function activate(context: ExecutionActivationContext) {
     await getVerseTextFromDatabasePromise,
   );
 
-  logger.info('Interlinear is finished activating!');
+  logger.info('MAIN - Interlinear is finished activating!');
 }
 
 export async function deactivate() {
-  logger.info('Interlinear is deactivating!');
+  logger.info('MAIN - Interlinear is deactivating!');
   return true;
 }
