@@ -132,7 +132,8 @@ async function main() {
     await initializeDatabase();
     process.stdin.on('data', (data) => {
       console.log(`child received message: ${data}`);
-      handleQuery(data);
+      var message = JSON.parse(data);
+      handleQuery(message);
     });
   } catch (error) {
     process.stdout.write(
