@@ -41,7 +41,7 @@ export async function activate(context: ExecutionActivationContext) {
         childProcess.stdin.write('selectAllLanguages'); // Trigger the query in foo.js
 
         // Listen for the message with the query results
-        childProcess.stdout.once('data', (data: Buffer) => {
+        childProcess.stdout.on('data', (data: Buffer) => {
           const message = data.toString();
           if (message.startsWith('Languages from database:')) {
             const languages = JSON.parse(message.replace('Languages from database: ', ''));
@@ -62,10 +62,16 @@ export async function activate(context: ExecutionActivationContext) {
       return new Promise((resolve, reject) => {
         childProcess.stdin.write(JSON.stringify({ command: 'selectVerseText', input: verseRef }));
 
-        childProcess.stdout.once('data', (data: Buffer) => {
+        childProcess.stdout.on('data', (data: Buffer) => {
           const message = data.toString();
+          console.log('message = ', message);
           if (message.startsWith('VerseText from database:')) {
-            const verseText = JSON.parse(message.replace('VerseText from database: ', ''));
+            var verseText = {};
+            try {
+              verseText = JSON.parse(message.replace('VerseText from database: ', ''));
+            } catch (error) {
+              console.log('json parse failed:', error);
+            }
             resolve(verseText);
           } else if (message.startsWith('Error')) {
             reject(new Error(message));
