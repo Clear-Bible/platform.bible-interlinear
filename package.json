@@ -7,6 +7,7 @@
   "author": "Biblica",
   "license": "MIT",
   "scripts": {
+    "pkg": "npx pkg assets/foo.js --targets node20-linux-x64,node20-macos-x64,node20-win-x64 --output assets/foo",
     "rebuild": ".\\node_modules\\.bin\\electron-rebuild.cmd -f -m ./node_modules/better-sqlite3",
     "build:web-view": "webpack --config ./webpack/webpack.config.web-view.ts",
     "build:main": "webpack --config ./webpack/webpack.config.main.ts",
@@ -33,8 +34,8 @@
   },
   "dependencies": {
     "@sillsdev/scripture": "^2.0.1",
+    "@yao-pkg/pkg": "^5.15.0",
     "better-sqlite3": "^11.3.0",
-    "electron": "^27.3.3",
     "platform-bible-utils": "file:../paranext-core/lib/platform-bible-utils"
   },
   "devDependencies": {
@@ -50,6 +51,7 @@
     "copy-webpack-plugin": "^12.0.2",
     "cross-env": "^7.0.3",
     "css-loader": "^6.10.0",
+    "electron": "^22.3.3",
     "electron-rebuild": "^3.2.9",
     "escape-string-regexp": "^5.0.0",
     "eslint": "^8.57.0",
