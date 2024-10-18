@@ -8,15 +8,8 @@ function initializeDatabase() {
   return new Promise((resolve, reject) => {
     try {
       const dbPath = path.join(process.cwd(), 'assets/clear-aligner.sqlite');
-      //we have to compile better-sqlite3 for the electron version used in paranext-core using `npm run rebuild` as defined in package.json
-      //for release use assets/clear-aligner.sqlite not ../assets/clear-aligner.sqlite
-      //`npm run pkg`
-      //run extension in dev mode or `npm run build` ?
-      //then run `npm run package`
-      //(NOPE) unzip the package and copy in the node_modules folder
-      //in paranext-core at C:\Users\rober\Documents\GitHub\paranext-core\release\build\win-unpacked> run .\Platform.Bible.exe --inspect-brk=5858 --remote-debugging-port=9223 --extensions C:\Users\rober\Documents\GitHub\platform.bible-interlinear\release\interlinear_0.0.1
-      //we cannot zip the file for release, the node modules are too many
-
+      //rename foo.js
+      //rename this npm scripts to be more specific to better-sqlite3
       console.log(`Opening database at: ${dbPath}`);
 
       db = new Database(dbPath, { readonly: true });
