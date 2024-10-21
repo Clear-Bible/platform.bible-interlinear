@@ -38,7 +38,7 @@ export async function activate(context: ExecutionActivationContext) {
 
       // Send the message to the forked process to fetch languages
       return new Promise((resolve, reject) => {
-        childProcess.stdin.write('selectAllLanguages'); // Trigger the query in foo.js
+        childProcess.stdin.write('selectAllLanguages'); // Trigger the query in database.js
 
         // Listen for the message with the query results
         childProcess.stdout.on('data', (data: Buffer) => {
@@ -85,9 +85,11 @@ export async function activate(context: ExecutionActivationContext) {
   const { createProcess } = context.elevatedPrivileges;
   if (!createProcess)
     throw new Error('MAIN - Forgot to add "createProcess" to "elevatePrivileges" in manifest.json');
-  //const childProcess = createProcess.fork(executionToken, 'assets/foo.js');
+  //const childProcess = createProcess.fork(executionToken, 'assets/database.js');
 
-  const exePath = __dirname + '/../assets/foo-win.exe';
+  const exePath = __dirname + '/../assets/database-win.exe';
+  //const exePath = __dirname + '/../assets/database-linux';
+  //const exePath = __dirname + '/../assets/database-macos';
   console.log(`MAIN - Executable Path: ${exePath}`);
   const childProcess = createProcess.spawn(executionToken, exePath, [], {
     stdio: ['pipe', 'pipe', 'pipe'],
